@@ -1,0 +1,18 @@
+[package]
+name = "dialog-stream"
+version = "0.1.0"
+authors = ["y.nasyrov <y.nasyrov@xsolla.com>"]
+description = "`io::Write` streamer for dialog"
+keywords = ["log", "logging", "structured", "hierarchical", "stream"]
+license-file = "LICENSE"
+readme = "../../README.md"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+dialog = { version = "0.1.0", path = "../.." }
+rustc-serialize = "0.3"
+backtrace = "0.2"
+log = "0.3"
+time = "0.1.34"

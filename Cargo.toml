@@ -1,0 +1,18 @@
+[package]
+name = "dialog"
+version = "0.1.0"
+authors = ["y.nasyrov <y.nasyrov@xsolla.com>"]
+keywords = ["log", "file"]
+license-file = "LICENSE"
+readme = "README.md"
+description = "A simple logger."
+
+[dependencies]
+log = "0.3"
+log-panics = "1.0"
+
+[workspace]
+members = [ "crates/stream" ]
+
+[dev-dependencies]
+dialog-stream = { path = "crates/stream", version = "0.1.0" }
