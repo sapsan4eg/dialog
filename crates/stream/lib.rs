@@ -24,7 +24,7 @@ impl StreamHandler {
     pub fn new<F>(mut path: String, count: usize, delay: u64, formatter: F) -> StreamHandler
         where F: Formatter {
 
-        if path.rfind("/").unwrap_or(0) != path.len() {
+        if path.rfind("/").unwrap_or(0) != path.len() - 1 {
             path.push('/');
         }
 
@@ -44,7 +44,7 @@ impl StreamHandler {
         if res.len() == 0 {
             return;
         }
-
+        println!("{}{}.{}", self.path, path, "txt");
         if let Ok(mut f) = OpenOptions::new().write(true).create(true).append(true).open(format!("{}{}.{}", self.path, path, "txt")) {
             for key in res.clone() {
                 f.write_all(&format!("{}{}" , key, "\n").into_bytes()).unwrap();
