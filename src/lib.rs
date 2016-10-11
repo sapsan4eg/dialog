@@ -6,13 +6,17 @@ use std::sync::Mutex;
 use std::sync::Arc;
 
 pub trait Handler: Send + Sync + 'static {
-    fn handle(&self, record: &LogRecord) -> Option<bool>;
+    fn handle(&self, record: &LogRecord) -> bool;
 }
 
 impl Handler for Box<Handler> {
-    fn handle(&self, record: &LogRecord) -> Option<bool> {
+    fn handle(&self, record: &LogRecord) -> bool {
         (**self).handle(record)
     }
+}
+
+pub trait Formatter: Send + Sync + 'static {
+    fn format(&self, record: &LogRecord) -> String;
 }
 
 pub struct Logger {
@@ -24,6 +28,13 @@ impl Logger {
 
     pub fn init(self) -> Result<(), SetLoggerError> {
         log_panics::init();
+        log::set_logger(|max_log_level| {
+            max_log_level.set(LogLevelFilter::Info);
+            Box::new(self)
+        })
+    }
+
+    pub fn init_without_panics(self) -> Result<(), SetLoggerError> {
         log::set_logger(|max_log_level| {
             max_log_level.set(LogLevelFilter::Info);
             Box::new(self)
@@ -57,7 +68,7 @@ impl log::Log for Logger {
             let handlers = self.handlers.lock().unwrap();
 
             for handler in handlers.iter() {
-                if handler.handle(record).is_none() {
+                if true == handler.handle(record) {
                     break;
                 }
             }

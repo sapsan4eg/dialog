@@ -12,7 +12,8 @@ log = "0.3"
 log-panics = "1.0"
 
 [workspace]
-members = [ "crates/stream" ]
+members = [ "crates/stream", "crates/json" ]
 
 [dev-dependencies]
 dialog-stream = { path = "crates/stream", version = "0.1.0" }
+dialog-formatter-json = { path = "crates/json", version = "0.1.0" }
