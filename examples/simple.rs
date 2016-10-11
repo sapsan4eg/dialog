@@ -10,7 +10,7 @@ use dialog_formatter_json::JsonFormatter;
 
 fn main() {
     let logger = Logger::new(LogLevel::Info);
-    logger.append(StreamHandler::new(100, 2000u64, JsonFormatter::new(vec!(LogLevel::Error))));
+    logger.append(StreamHandler::new(format!("/usr/local/www/"), 100, 2000u64, JsonFormatter::new(vec!(LogLevel::Error))));
     //logger.init().unwrap();
     logger.init_without_panics().unwrap();
     error!("something");

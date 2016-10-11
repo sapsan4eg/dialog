@@ -17,10 +17,17 @@ pub struct StreamHandler {
     , delay: u64
     , flush_type: LogLevel
     , formatter: Box<Formatter>
+    , path: String
 }
 
 impl StreamHandler {
-    pub fn new<F: Formatter>(count: usize, delay: u64, formatter: F) -> StreamHandler {
+    pub fn new<F>(mut path: String, count: usize, delay: u64, formatter: F) -> StreamHandler
+        where F: Formatter {
+
+        if path.rfind("/").unwrap_or(0) != path.len() {
+            path.push('/');
+        }
+
         StreamHandler {
             channels: Arc::new(Mutex::new(HashMap::new())),
             last_time: Mutex::new(time::precise_time_ns()),
@@ -28,6 +35,7 @@ impl StreamHandler {
             delay: delay,
             flush_type: LogLevel::Error
             , formatter: Box::new(formatter)
+            , path: path
         }
     }
 
@@ -37,12 +45,14 @@ impl StreamHandler {
             return;
         }
 
-        if let Ok(mut f) = OpenOptions::new().write(true).create(true).append(true).open(format!("{}.{}", path, "txt")) {
+        if let Ok(mut f) = OpenOptions::new().write(true).create(true).append(true).open(format!("{}{}.{}", self.path, path, "txt")) {
             for key in res.clone() {
                 f.write_all(&format!("{}{}" , key, "\n").into_bytes()).unwrap();
             }
             f.sync_all().unwrap();
             res.truncate(0);
+        } else {
+            println!("{}{}.{}", self.path, path, "txt");
         }
     }
 }
