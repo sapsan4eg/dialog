@@ -44,7 +44,7 @@ impl StreamHandler {
         if res.len() == 0 {
             return;
         }
-        println!("{}{}.{}", self.path, path, "txt");
+
         if let Ok(mut f) = OpenOptions::new().write(true).create(true).append(true).open(format!("{}{}.{}", self.path, path, "txt")) {
             for key in res.clone() {
                 f.write_all(&format!("{}{}" , key, "\n").into_bytes()).unwrap();
@@ -52,7 +52,7 @@ impl StreamHandler {
             f.sync_all().unwrap();
             res.truncate(0);
         } else {
-            println!("{}{}.{}", self.path, path, "txt");
+            println!("Cannot write log to: {}{}.{}", self.path, path, "txt");
         }
     }
 }
