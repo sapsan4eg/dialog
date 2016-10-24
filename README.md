@@ -16,7 +16,7 @@ use dialog_formatter_json::JsonFormatter;
 
 fn main() {
     let logger = Logger::new(LogLevel::Info);
-    logger.append(StreamHandler::new(100, 2000u64, JsonFormatter::new(vec!(LogLevel::Error))));
+    logger.append(StreamHandler::new(format!("/usr/local/www/dialog/pipe.txt"), 100, 2000u64, JsonFormatter::new(vec!(LogLevel::Error))));
     // please use 
     // logger.init().unwrap(); this can cover panic to error and logged it or
     logger.init_without_panics().unwrap(); 

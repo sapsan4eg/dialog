@@ -4,7 +4,7 @@ extern crate backtrace;
 extern crate log;
 extern crate time;
 
-use rustc_serialize::json::{self, Json, ToJson};
+use rustc_serialize::json::{Json, ToJson};
 use std::collections::BTreeMap;
 use backtrace::Backtrace;
 use dialog::Formatter;
@@ -23,36 +23,21 @@ impl JsonFormatter {
 }
 struct LogJson {
     level: String,
-    extra: MessageJson,
+    extra: String,
     file: String,
-    program: String,
     line: u32,
     time: String,
     trace: String
 }
 
-#[derive(RustcDecodable)]
-pub struct MessageJson {
-    pub message: String,
-    pub description: String
-}
-
-impl ToJson for MessageJson {
-    fn to_json(&self) -> Json {
-        let mut d = BTreeMap::new();
-        d.insert("message".to_string(), self.message.to_json());
-        d.insert("description".to_string(), self.description.to_json());
-        Json::Object(d)
-    }
-}
-
 impl ToJson for LogJson {
     fn to_json(&self) -> Json {
         let mut d = BTreeMap::new();
+
+        //let extra = Json::from_str(&self.extra).unwrap_or(self.extra.to_json());
         d.insert("level".to_string(), self.level.to_json());
-        d.insert("extra".to_string(), self.extra.to_json());
+        d.insert("extra".to_string(), Json::from_str(&self.extra).unwrap_or(self.extra.to_json()));
         d.insert("file".to_string(), self.file.to_json());
-        d.insert("program".to_string(), self.program.to_json());
         d.insert("line".to_string(), self.line.to_json());
         d.insert("time".to_string(), self.time.to_json());
         d.insert("trace".to_string(), self.trace.to_json());
@@ -70,12 +55,8 @@ impl Formatter for JsonFormatter {
 
         LogJson {
             level: record.level().to_string(),
-            extra: match json::decode(&record.args().to_string()) {
-                Ok(n) => n,
-                Err(_) => MessageJson{ message: format!("{}", record.args().to_string()), description: "".to_string() },
-            },
+            extra: record.args().to_string(),
             file: record.location().file().to_string(),
-            program: record.location().module_path().to_string(),
             line: record.location().line(),
             time: time::strftime(&"%FT%T%z".to_string(), &time::now()).unwrap(),
             trace: trace

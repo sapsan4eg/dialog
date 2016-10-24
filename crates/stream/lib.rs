@@ -17,16 +17,12 @@ pub struct StreamHandler {
     , delay: u64
     , flush_type: LogLevel
     , formatter: Box<Formatter>
-    , path: String
+    , file: String
 }
 
 impl StreamHandler {
-    pub fn new<F>(mut path: String, count: usize, delay: u64, formatter: F) -> StreamHandler
+    pub fn new<F>(file: String, count: usize, delay: u64, formatter: F) -> StreamHandler
         where F: Formatter {
-
-        if path.rfind("/").unwrap_or(0) != path.len() - 1 {
-            path.push('/');
-        }
 
         StreamHandler {
             channels: Arc::new(Mutex::new(HashMap::new())),
@@ -35,24 +31,24 @@ impl StreamHandler {
             delay: delay,
             flush_type: LogLevel::Error
             , formatter: Box::new(formatter)
-            , path: path
+            , file: file
         }
     }
 
-    fn flush(&self, path: &str, res: &mut Vec<String>) {
+    fn flush(&self, res: &mut Vec<String>) {
 
         if res.len() == 0 {
             return;
         }
 
-        if let Ok(mut f) = OpenOptions::new().write(true).create(true).append(true).open(format!("{}{}.{}", self.path, path, "txt")) {
+        if let Ok(mut f) = OpenOptions::new().write(true).create(true).append(true).open(format!("{}", self.file)) {
             for key in res.clone() {
                 f.write_all(&format!("{}{}" , key, "\n").into_bytes()).unwrap();
             }
             f.sync_all().unwrap();
             res.truncate(0);
         } else {
-            println!("Cannot write log to: {}{}.{}", self.path, path, "txt");
+            println!("Cannot write log to: {}", self.file);
         }
     }
 }
@@ -61,26 +57,27 @@ impl Handler for StreamHandler {
     fn handle(&self, record: &LogRecord) -> bool {
 
         let mut channel = self.channels.lock().unwrap();
+        let ch: String = "base".to_string();
 
-        if !channel.contains_key(&record.location().module_path().to_string()) {
-            channel.insert((record.location().module_path().to_string()), Vec::new());
+        if !channel.contains_key(&ch) {
+            channel.insert((ch.clone()), Vec::new());
         }
 
-        if let Some(res) = channel.get_mut(&record.location().module_path().to_string()) {
+        if let Some(res) = channel.get_mut(&ch) {
             res.push(self.formatter.format(record));
 
             let mut t = self.last_time.lock().unwrap();
 
             if res.len() > self.count || time::precise_time_ns() - *t > self.delay * 1000000 {
-                self.flush(&record.location().module_path().to_string(), res);
+                self.flush(res);
             }
 
             *t = time::precise_time_ns();
         }
 
         if record.level() == self.flush_type {
-            for (channel_name, channel_row) in channel.iter_mut() {
-                self.flush(&channel_name.to_string(), channel_row);
+            for channel_row in channel.values_mut() {
+                self.flush(channel_row);
             }
         }
 

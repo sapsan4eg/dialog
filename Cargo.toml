@@ -10,6 +10,7 @@ description = "A simple logger."
 [dependencies]
 log = "0.3"
 log-panics = "1.0"
+rustc-serialize = "0.3"
 
 [workspace]
 members = [ "crates/stream", "crates/json" ]
