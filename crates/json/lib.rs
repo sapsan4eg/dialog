@@ -34,7 +34,6 @@ impl ToJson for LogJson {
     fn to_json(&self) -> Json {
         let mut d = BTreeMap::new();
 
-        //let extra = Json::from_str(&self.extra).unwrap_or(self.extra.to_json());
         d.insert("level".to_string(), self.level.to_json());
         d.insert("extra".to_string(), Json::from_str(&self.extra).unwrap_or(self.extra.to_json()));
         d.insert("file".to_string(), self.file.to_json());

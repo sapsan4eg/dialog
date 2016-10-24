@@ -63,19 +63,20 @@ impl Handler for StreamHandler {
             channel.insert((ch.clone()), Vec::new());
         }
 
+        let mut t = self.last_time.lock().unwrap();
+
         if let Some(res) = channel.get_mut(&ch) {
             res.push(self.formatter.format(record));
 
-            let mut t = self.last_time.lock().unwrap();
-
             if res.len() > self.count || time::precise_time_ns() - *t > self.delay * 1000000 {
+                *t = time::precise_time_ns();
                 self.flush(res);
             }
-
-            *t = time::precise_time_ns();
         }
 
         if record.level() == self.flush_type {
+            *t = time::precise_time_ns();
+
             for channel_row in channel.values_mut() {
                 self.flush(channel_row);
             }

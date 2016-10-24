@@ -35,7 +35,10 @@ fn main() {
 
     logger.append(StreamHandler::new(format!("/usr/local/www/dialog/pipe.txt"), 100, 2000u64, JsonFormatter::new(vec!(LogLevel::Error))));
     logger.init().unwrap();
+    warn!("some");
+    std::thread::sleep(std::time::Duration::from_millis(2000u64));
+    warn!("some");
     //logger.init_without_panics().unwrap();
-    error!("something");
-    error!("{}", MessageJson{ program: "server_error".to_string(), message: "something going wrong".to_string(), description: "yes".to_string()}.to_json());
+  //  error!("something");
+  //  error!("{}", MessageJson{ program: "server_error".to_string(), message: "something going wrong".to_string(), description: "yes".to_string()}.to_json());
 }
