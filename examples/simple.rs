@@ -4,7 +4,7 @@ extern crate dialog_stream;
 extern crate dialog_formatter_json;
 extern crate rustc_serialize;
 use dialog::Logger;
-use log::LogLevel;
+use log::{LogLevel, LogLevelFilter};
 use dialog_stream::StreamHandler;
 use dialog_formatter_json::JsonFormatter;
 
@@ -31,7 +31,7 @@ impl ToJson for MessageJson {
 
 
 fn main() {
-    let logger = Logger::new(LogLevel::Info);
+    let logger = Logger::new(LogLevelFilter::Info);
 
     logger.append(StreamHandler::new(format!("/usr/local/www/dialog/pipe.txt"), 100, 2000u64, JsonFormatter::new(vec!(LogLevel::Error))));
     logger.init().unwrap();

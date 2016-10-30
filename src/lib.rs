@@ -21,7 +21,7 @@ pub trait Formatter: Send + Sync + 'static {
 
 pub struct Logger {
     handlers: Arc<Mutex<Vec<Box<Handler>>>>,
-    level: LogLevel
+    level: LogLevelFilter
 }
 
 impl Logger {
@@ -29,19 +29,19 @@ impl Logger {
     pub fn init(self) -> Result<(), SetLoggerError> {
         log_panics::init();
         log::set_logger(|max_log_level| {
-            max_log_level.set(LogLevelFilter::Info);
+            max_log_level.set(self.level);
             Box::new(self)
         })
     }
 
     pub fn init_without_panics(self) -> Result<(), SetLoggerError> {
         log::set_logger(|max_log_level| {
-            max_log_level.set(LogLevelFilter::Info);
+            max_log_level.set(self.level);
             Box::new(self)
         })
     }
 
-    pub fn new(level: LogLevel) -> Logger {
+    pub fn new(level: LogLevelFilter) -> Logger {
         Logger {
             handlers: Arc::new(Mutex::new(Vec::new())),
             level: level
