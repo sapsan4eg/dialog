@@ -39,6 +39,6 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_millis(2000u64));
     warn!("some");
     //logger.init_without_panics().unwrap();
-  //  error!("something");
+    error!("something");
   //  error!("{}", MessageJson{ program: "server_error".to_string(), message: "something going wrong".to_string(), description: "yes".to_string()}.to_json());
 }

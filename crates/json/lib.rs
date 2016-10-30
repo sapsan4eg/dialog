@@ -21,44 +21,21 @@ impl JsonFormatter {
         }
     }
 }
-struct LogJson {
-    level: String,
-    extra: String,
-    file: String,
-    line: u32,
-    time: String,
-    trace: String
-}
-
-impl ToJson for LogJson {
-    fn to_json(&self) -> Json {
-        let mut d = BTreeMap::new();
-
-        d.insert("level".to_string(), self.level.to_json());
-        d.insert("extra".to_string(), Json::from_str(&self.extra).unwrap_or(self.extra.to_json()));
-        d.insert("file".to_string(), self.file.to_json());
-        d.insert("line".to_string(), self.line.to_json());
-        d.insert("time".to_string(), self.time.to_json());
-        d.insert("trace".to_string(), self.trace.to_json());
-        Json::Object(d)
-    }
-}
 
 impl Formatter for JsonFormatter {
     fn format(&self, record: &LogRecord) -> String {
-        let mut trace = String::new();
+        let mut d = BTreeMap::new();
+
+        d.insert("level".to_string(), record.level().to_string().to_json());
+        d.insert("extra".to_string(), Json::from_str(&record.args().to_string()).unwrap_or(record.args().to_string().to_json()));
+        d.insert("file".to_string(), record.location().file().to_string().to_json());
+        d.insert("line".to_string(), record.location().line().to_json());
+        d.insert("time".to_string(), time::strftime(&"%FT%T%z".to_string(), &time::now()).unwrap().to_json());
 
         if self.trace_types.contains(&record.level()) {
-            trace = format!("{:?}", Backtrace::new());
+            d.insert("trace".to_string(), format!("{:?}", Backtrace::new()).to_json());
         }
 
-        LogJson {
-            level: record.level().to_string(),
-            extra: record.args().to_string(),
-            file: record.location().file().to_string(),
-            line: record.location().line(),
-            time: time::strftime(&"%FT%T%z".to_string(), &time::now()).unwrap(),
-            trace: trace
-        }.to_json().to_string()
+        Json::Object(d).to_string()
     }
 }
