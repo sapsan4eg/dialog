@@ -1,7 +1,7 @@
 extern crate dialog;
 extern crate rustc_serialize;
 extern crate backtrace;
-extern crate log;
+#[macro_use] extern crate log;
 extern crate time;
 
 use rustc_serialize::json::{Json, ToJson};
@@ -38,4 +38,23 @@ impl Formatter for JsonFormatter {
 
         Json::Object(d).to_string()
     }
+}
+
+pub fn log_error(program: &str, message: &str) {
+    error!("{}", prepare_data_to_log(program, message));
+}
+
+pub fn log_warn(program: &str, message: &str) {
+    warn!("{}", prepare_data_to_log(program, message));
+}
+
+pub fn log_info(program: &str, message: &str) {
+    info!("{}", prepare_data_to_log(program, message));
+}
+
+fn prepare_data_to_log(program: &str, message: &str) -> Json {
+    let mut m = BTreeMap::new();
+    m.insert("program".to_string(), program.to_string().to_json());
+    m.insert("data".to_string(), Json::from_str(message).unwrap_or(message.to_string().to_json()));
+    Json::Object(m)
 }

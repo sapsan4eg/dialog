@@ -5,14 +5,14 @@ use Handler;
 struct DummyHandler;
 
 impl Handler for DummyHandler {
-    fn handle(&self, record: &LogRecord) -> Option<bool> {
+    fn handle(&self, record: &LogRecord) -> bool {
         println!("{}", record.args().to_string());
-        Some(true)
+        true
     }
 }
 
 #[test] fn test_handler() {
-    let logger = Logger::new(LogLevel::Info);
+    let logger = Logger::new(LogLevelFilter::Info);
     logger.append(DummyHandler);
     info!("hello");
 }
