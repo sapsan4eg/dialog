@@ -32,9 +32,10 @@ impl ToJson for MessageJson {
 
 fn main() {
     let logger = Logger::new(LogLevelFilter::Info);
-
     logger.append(StreamHandler::new(format!("/usr/local/www/dialog/pipe.txt"), 100, 2000u64, JsonFormatter::new(vec!(LogLevel::Error))));
     logger.init().unwrap();
+    let json = MessageJson {message: "hello".to_string(), description: "all fine".to_string(), program: "some/program".to_string()};
+    info!("{}", json.to_json().to_string());
     warn!("some");
     std::thread::sleep(std::time::Duration::from_millis(2000u64));
     warn!("some");
